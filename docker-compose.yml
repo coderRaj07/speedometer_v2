@@ -1,0 +1,90 @@
+services:
+  # -------------------- DATABASE --------------------
+  db:
+    image: postgres:14
+    container_name: speedometer-db
+    environment:
+      POSTGRES_DB: speeds
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+    volumes:
+      - ./infra/postgres/init.sql:/docker-entrypoint-initdb.d/init.sql
+    ports:
+      - "5432:5432"
+
+  # -------------------- REDIS --------------------
+  redis:
+    image: redis:7
+    container_name: speedometer-redis
+    ports:
+      - "6379:6379"
+
+  # -------------------- ZOOKEEPER --------------------
+  zookeeper:
+    image: confluentinc/cp-zookeeper:7.6.0
+    container_name: speedometer-zookeeper
+    environment:
+      ZOOKEEPER_CLIENT_PORT: 2181
+      ZOOKEEPER_TICK_TIME: 2000
+
+  # -------------------- KAFKA --------------------
+  kafka:
+    image: confluentinc/cp-kafka:7.6.0
+    container_name: speedometer-kafka
+    depends_on:
+      - zookeeper
+    ports:
+      - "9092:9092"
+    environment:
+      KAFKA_BROKER_ID: 1
+      KAFKA_ZOOKEEPER_CONNECT: zookeeper:2181
+      KAFKA_ADVERTISED_LISTENERS: PLAINTEXT://kafka:9092
+      KAFKA_LISTENERS: PLAINTEXT://0.0.0.0:9092
+      KAFKA_OFFSETS_TOPIC_REPLICATION_FACTOR: 1
+
+  # -------------------- INGESTION API --------------------
+  backend:
+    build: ./backend
+    container_name: speedometer-backend
+    depends_on:
+      - kafka
+    ports:
+      - "8000:8000"
+
+  # -------------------- DB WRITER --------------------
+  db-writer:
+    build: ./db-writer
+    container_name: speedometer-db-writer
+    depends_on:
+      - kafka
+      - db
+
+  # -------------------- STREAM PROCESSOR --------------------
+  stream-processor:
+    build: ./stream-processor
+    container_name: speedometer-stream-processor
+    depends_on:
+      - kafka
+      - redis
+
+  # -------------------- WEBSOCKET GATEWAY --------------------
+  websocket-gateway:
+    build: ./websocket-gateway
+    container_name: speedometer-websocket
+    depends_on:
+      - redis
+    ports:
+      - "9000:9000"
+
+  # -------------------- SENSOR SIMULATOR --------------------
+  simulator:
+    build: ./simulator
+    container_name: speedometer-simulator
+    depends_on:
+      - backend
+
+  # -------------------- FRONTEND --------------------
+  frontend:
+    build: ./frontend
+    ports:
+      - "3000:80"

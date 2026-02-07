@@ -1,0 +1,6 @@
+CREATE TABLE IF NOT EXISTS speed_readings (
+    id SERIAL PRIMARY KEY,
+    sensor_id TEXT NOT NULL,
+    speed DOUBLE PRECISION NOT NULL,
+    ts TIMESTAMPTZ NOT NULL
+);
