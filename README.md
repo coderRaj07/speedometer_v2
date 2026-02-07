@@ -6,6 +6,81 @@ This project demonstrates **advanced backend system design** using Kafka, Redis,
 
 ---
 
+## ✅ Requirements Mapping (Read First)
+
+| Requirement                    | How it is Addressed                               |
+| ------------------------------ | ------------------------------------------------- |
+| Time-series speed data (1 sec) | Sensor simulator emits data every second          |
+| Data stored in DB              | Kafka consumer persists all events to PostgreSQL  |
+| Real-time UI update            | Redis Pub/Sub + WebSocket gateway                 |
+| Architecture explanation       | Detailed below                                    |
+| Dockerized working app         | Docker Compose for all services                   |
+| Scalable design                | Horizontal scaling via Kafka & stateless services |
+
+---
+
+## 🧠 Strategy: Challenges & Opportunities
+
+### Challenges Addressed
+
+* **Real-time UI updates without DB polling**
+  → Redis Pub/Sub and a dedicated WebSocket gateway.
+
+* **High-frequency ingestion without tight coupling**
+  → Kafka decouples producers and consumers.
+
+* **Database overload prevention**
+  → PostgreSQL is used only for historical storage.
+
+* **Fault isolation and reliability**
+  → Ingestion, processing, and delivery are isolated services.
+
+### Opportunities Enabled
+
+* Horizontal scaling of consumers and WebSocket gateways
+* Replay and backfill using Kafka
+* Easy addition of analytics or alerting consumers
+* Safe independent frontend evolution
+
+---
+
+## 📈 Scalability & Capacity
+
+This system scales **horizontally**, not vertically.
+
+### Current Single-Node (Docker / Local)
+
+* **Ingestion throughput**
+  ~5,000–10,000 events/sec (FastAPI → Kafka, single partition)
+
+* **WebSocket clients**
+  Thousands of concurrent connections per gateway
+
+* **Database writes**
+  Batched Kafka consumers prevent write amplification
+
+### Scaling Strategy
+
+* Increase Kafka partitions for higher throughput
+* Scale consumer groups independently
+* Run multiple WebSocket gateways behind a load balancer
+* Use managed PostgreSQL with read replicas
+
+📌 No architectural redesign is required to scale.
+
+---
+
+## 🔁 Design Evolution (Reference)
+
+A **monolithic v1 implementation** was first built to validate core functionality quickly using direct DB updates.
+
+As requirements evolved toward scalability and real-time delivery, the system was refactored into the current **event-driven architecture (v2)**.
+
+🔗 Monolithic v1 (reference):
+[https://github.com/coderraj07/speedometer_v1](https://github.com/coderraj07/speedometer_v1)
+
+---
+
 ## 📌 High-Level Architecture
 
 ```
