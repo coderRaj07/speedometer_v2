@@ -5,6 +5,7 @@ from fastapi import FastAPI, WebSocket
 app = FastAPI()
 r = redis.Redis(host="redis", decode_responses=True)
 
+# WebSocket endpoint for real-time speed updates to the frontend
 @app.websocket("/ws/speed")
 async def ws_endpoint(ws: WebSocket):
     await ws.accept()

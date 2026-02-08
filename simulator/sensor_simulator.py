@@ -2,6 +2,7 @@ import time
 import random
 import requests
 
+# This simulator generates random speed events and sends them to the backend every second.
 BACKEND_URL = "http://backend:8000/speed"
 
 def wait_for_backend():
@@ -17,6 +18,7 @@ def wait_for_backend():
 
 wait_for_backend()
 
+# Generate and send speed events indefinitely on a 1-second interval
 while True:
     try:
         requests.post(

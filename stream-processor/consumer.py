@@ -3,6 +3,8 @@ import time
 import redis
 from kafka import KafkaConsumer
 
+# This consumer connects to Kafka, listens for speed events, and publishes them to Redis for real-time updates to the frontend.
+
 # -------------------- REDIS --------------------
 r = redis.Redis(host="redis", decode_responses=True)
 print("✅ Connected to Redis")

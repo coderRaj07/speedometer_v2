@@ -3,6 +3,8 @@ import time
 import psycopg2
 from kafka import KafkaConsumer
 
+# This consumer connects to Kafka, listens for speed events, and writes them to Postgres.
+
 # -------------------- DATABASE --------------------
 conn = psycopg2.connect(
     host="db",

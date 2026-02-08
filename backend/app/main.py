@@ -7,6 +7,7 @@ from .schemas import SpeedEvent
 app = FastAPI()
 producer = None
 
+# Kafka producer is initialized lazily to allow the app to start even if Kafka is not ready yet
 def get_producer():
     global producer
     if producer:
@@ -28,6 +29,7 @@ def get_producer():
 
     raise RuntimeError("Kafka not available")
 
+# Endpoint to receive speed events and publish them to Kafka
 @app.post("/speed")
 def ingest(event: SpeedEvent):
     p = get_producer()
