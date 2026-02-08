@@ -96,7 +96,7 @@ As requirements evolved toward scalability and real-time delivery, the system wa
         +-----------------------------+
         |                             |
         v                             v
- DB Writer Consumer          Stream Processor
+ DB Writer Consumer          Stream Processor Consumer
  (PostgreSQL / Timeseries)   (Latest state)
         |                             |
         v                             v
